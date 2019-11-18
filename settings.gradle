@@ -1,0 +1,3 @@
+rootProject.name='OnBoardingDialogFragment'
+include ':app'
+include ':onboardingfragment'

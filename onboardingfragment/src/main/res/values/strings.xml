@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="content_description_onboarding_image">Onboarding Item</string>
+    <string name="notLastButtonText">Next</string>
+    <string name="lastButtonText">Finish</string>
+</resources>

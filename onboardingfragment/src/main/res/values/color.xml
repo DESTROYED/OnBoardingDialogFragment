@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="button">#F86262</color>
+    <color name="button_text">#F6F6F6</color>
+    <color name="dot_selected">#F86262</color>
+    <color name="dot_default">#ACACAC</color>
+</resources>
