@@ -9,18 +9,17 @@ import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.*
 import kotlinx.android.synthetic.main.onboarding_view.*
+import kotlin.properties.Delegates
 
 class OnboardingFragment : DialogFragment() {
 
     companion object {
-        private const val NON_HTML_TYPE = 0
-        private const val HTML_TYPE = 1
+        private const val NON_EMPTY_TYPE = 0
     }
 
-    private var adapterType = 666
-    private var images: ArrayList<*>? = null
+    private var adapterType: Int? = null
     private var pages: ArrayList<*>? = null
-    private var isHtml = false
+    private var isHtml by Delegates.notNull<Boolean>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,17 +33,20 @@ class OnboardingFragment : DialogFragment() {
         return R.style.FullScreenDialog
     }
 
-    fun setImages(images: ArrayList<*>) {
-        adapterType = NON_HTML_TYPE
-        this.images = images
-    }
-
-    fun setPages(pages: ArrayList<String>) {
-        adapterType = HTML_TYPE
+    /**
+     * Method, to set images into adapter.
+     * @param pages could be used like setter for elements,
+     * like Html links, that will be launched at onboarding page
+     */
+    fun setPages(pages: ArrayList<*>, isHtml: Boolean = false) {
+        adapterType = NON_EMPTY_TYPE
         this.pages = pages
-        isHtml = true
+        this.isHtml = isHtml
     }
 
+    /**
+     * Method, to open DialogFragment with internal TAG,
+     */
     fun show(supportFragmentManager: FragmentManager) {
         this.show(supportFragmentManager, this::javaClass.name)
     }
@@ -52,25 +54,14 @@ class OnboardingFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = when (adapterType) {
-            NON_HTML_TYPE -> {
-                images?.let { OnboardingDrawableAdapter(it, isHtml) }
-            }
-            HTML_TYPE -> {
-                pages?.let { OnboardingDrawableAdapter(it, isHtml) }
-            }
-            else -> {
-                throw OnboardingHasNoItemsException()
-            }
-        }
-
+        val adapter = getAdapterByType()
         initViewpager(adapter)
     }
 
     private fun initViewpager(adapter: OnboardingDrawableAdapter?) {
-        adapter?.let {
+        adapter?.let { notNullAdapter ->
 
-            viewPager.adapter = adapter
+            viewPager.adapter = notNullAdapter
 
             TabLayoutMediator(
                 tabLayout,
@@ -91,14 +82,32 @@ class OnboardingFragment : DialogFragment() {
             viewPager.registerOnPageChangeCallback(
                 object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
-                        if (position < adapter.itemCount - 1) {
-                            boardingButton.text = getString(R.string.notLastButtonText)
-                        } else {
-                            boardingButton.text = getString(R.string.lastButtonText)
-                        }
+                        boardingButton.text = getOnboardingButtonText(position, notNullAdapter)
                         super.onPageSelected(position)
                     }
                 })
+        }
+    }
+
+    private fun getOnboardingButtonText(
+        position: Int,
+        adapter: OnboardingDrawableAdapter
+    ): String? {
+        return if (position < adapter.itemCount - 1) {
+            getString(R.string.notLastButtonText)
+        } else {
+            getString(R.string.lastButtonText)
+        }
+    }
+
+    private fun getAdapterByType(): OnboardingDrawableAdapter? {
+        return when (adapterType) {
+            NON_EMPTY_TYPE -> {
+                pages?.let { OnboardingDrawableAdapter(it, isHtml) }
+            }
+            else -> {
+                throw OnboardingHasNoItemsException()
+            }
         }
     }
 }

@@ -4,4 +4,5 @@
     <color name="button_text">#F6F6F6</color>
     <color name="dot_selected">#F86262</color>
     <color name="dot_default">#ACACAC</color>
+    <color name="page_background">#FF424242</color>
 </resources>
